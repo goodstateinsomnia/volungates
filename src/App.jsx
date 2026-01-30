@@ -12,7 +12,7 @@ import {
   Lock, CheckCircle, XCircle, ChevronLeft, ChevronRight,
   ShieldCheck, AlertCircle, Save, ArrowRight, Hourglass, Check, 
   MousePointerClick, CalendarDays, Trash2, Users, ClipboardList, 
-  Badge, Star, Info, Target, LayoutDashboard, UserCircle, Edit3, Camera, MapPin, Shield, BadgeCheck, Code, Zap, ZoomIn, ZoomOut, Move, Image as ImageIcon, Heart, Briefcase, KeyRound, Terminal, Cpu, Grid3X3
+  Badge, Star, Info, Target, LayoutDashboard, UserCircle, Edit3, Camera, MapPin, Shield, BadgeCheck, Code, Zap, ZoomIn, ZoomOut, Move, Image as ImageIcon, Heart, Briefcase, KeyRound, Terminal, Cpu, Grid3X3, BookOpen, PlayCircle, ExternalLink
 } from 'lucide-react';
 
 // --- CONFIGURACIÓN FIREBASE (GATOTECA) ---
@@ -42,6 +42,23 @@ const ZONES = {
   mallazo: { label: 'Mallazo', color: 'bg-purple-100 text-purple-700 border-purple-200' },
   cer: { label: 'CER', color: 'bg-rose-100 text-rose-700 border-rose-200' }
 };
+
+const PROTOCOL_VIDEOS = [
+  { 
+    id: 'areneros', 
+    title: 'Desinfección de Areneros', 
+    description: 'Protocolo correcto para la limpieza y desinfección de las bandejas.',
+    url: 'https://drive.google.com/file/d/1eLSzQJAFh64yucPXOuVxc613okEIOgOq/preview',
+    external: 'https://drive.google.com/file/d/1eLSzQJAFh64yucPXOuVxc613okEIOgOq/view?usp=sharing'
+  },
+  { 
+    id: 'cuencos', 
+    title: 'Desinfección de Cuencos', 
+    description: 'Pasos para asegurar la higiene en los comederos y bebederos.',
+    url: 'https://drive.google.com/file/d/174NsGo0dEjhh_I4azVyQoXK6cxEJ1py7/preview',
+    external: 'https://drive.google.com/file/d/174NsGo0dEjhh_I4azVyQoXK6cxEJ1py7/view?usp=sharing'
+  }
+];
 
 const AVATARS = ['🐱', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾'];
 
@@ -916,6 +933,7 @@ export default function App() {
                         <div className={`flex p-1 rounded-xl ${isDevUser ? 'bg-stone-800 border border-emerald-500/20' : 'bg-stone-100'}`}>
                             <button onClick={() => setNavTab('calendar')} className={`p-2 rounded-lg transition-all ${navTab === 'calendar' ? (isDevUser ? 'bg-emerald-900/40 text-emerald-400 shadow-sm' : 'bg-white shadow-sm text-orange-600') : 'text-stone-400'}`}><CalendarDays size={20} /></button>
                             <button onClick={() => setNavTab('community')} className={`p-2 rounded-lg transition-all ${navTab === 'community' ? (isDevUser ? 'bg-emerald-900/40 text-emerald-400 shadow-sm' : 'bg-white shadow-sm text-orange-600') : 'text-stone-400'}`}><Users size={20} /></button>
+                            <button onClick={() => setNavTab('protocols')} className={`p-2 rounded-lg transition-all ${navTab === 'protocols' ? (isDevUser ? 'bg-emerald-900/40 text-emerald-400 shadow-sm' : 'bg-white shadow-sm text-orange-600') : 'text-stone-400'}`}><BookOpen size={20} /></button>
                             <button onClick={() => setNavTab('profile')} className={`p-2 rounded-lg transition-all ${navTab === 'profile' ? (isDevUser ? 'bg-emerald-900/40 text-emerald-400 shadow-sm' : 'bg-white shadow-sm text-orange-600') : 'text-stone-400'}`}><User size={20} /></button>
                         </div>
                     )}
@@ -964,6 +982,53 @@ export default function App() {
                 </div>
               )}
               
+              {/* VISTA PROTOCOLOS */}
+              {navTab === 'protocols' && (
+                  <div className="flex flex-col items-center w-full animate-in slide-in-from-right-8">
+                     <div className="w-full max-w-2xl mb-6 flex items-center justify-between">
+                        <div>
+                            <h2 className={`text-2xl font-bold ${isDevUser ? 'text-white' : 'text-stone-800'}`}>Protocolos</h2>
+                            <p className="text-stone-500 text-sm">Formación y limpieza</p>
+                        </div>
+                        <BookOpen size={28} className={isDevUser ? 'text-emerald-500' : 'text-orange-500'} />
+                    </div>
+                    
+                    <div className="w-full max-w-2xl space-y-6">
+                        {PROTOCOL_VIDEOS.map((video) => (
+                            <Card key={video.id} className={`overflow-hidden ${isDevUser ? 'bg-stone-900 border-emerald-900' : 'bg-white'}`}>
+                                <div className={`p-4 border-b flex items-center gap-3 ${isDevUser ? 'border-stone-800 bg-stone-900' : 'border-stone-100 bg-stone-50'}`}>
+                                    <div className={`p-2 rounded-full ${isDevUser ? 'bg-emerald-900 text-emerald-400' : 'bg-orange-100 text-orange-500'}`}>
+                                        <PlayCircle size={20} />
+                                    </div>
+                                    <div>
+                                        <h3 className={`font-bold ${isDevUser ? 'text-white' : 'text-stone-800'}`}>{video.title}</h3>
+                                        <p className="text-xs text-stone-500">{video.description}</p>
+                                    </div>
+                                </div>
+                                <div className="aspect-video w-full bg-black relative">
+                                    <iframe 
+                                        src={video.url}
+                                        className="w-full h-full absolute inset-0"
+                                        allow="autoplay"
+                                        title={video.title}
+                                    ></iframe>
+                                </div>
+                                <div className={`p-3 text-center border-t ${isDevUser ? 'border-stone-800 bg-stone-900' : 'border-stone-100 bg-stone-50'}`}>
+                                    <a 
+                                        href={video.external} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className={`inline-flex items-center gap-2 text-xs font-bold hover:underline ${isDevUser ? 'text-emerald-500' : 'text-orange-500'}`}
+                                    >
+                                        <ExternalLink size={12} /> Ver en Google Drive (Pantalla completa)
+                                    </a>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                  </div>
+              )}
+
               {/* VISTA COMUNIDAD */}
               {navTab === 'community' && (
                   <div className="flex flex-col items-center w-full animate-in slide-in-from-right-8">
@@ -1002,7 +1067,7 @@ export default function App() {
                                     )}
                                     {isAdam && (
                                           <div className="mt-1 text-[9px] px-2 py-0.5 rounded-sm border border-emerald-500/50 text-emerald-500 font-mono tracking-widest uppercase">
-                                                SYSTEM
+                                                  SYSTEM
                                           </div>
                                     )}
                                 </div>
@@ -1170,59 +1235,59 @@ export default function App() {
           </button>
 
           <PremiumCard isDev={visitingProfile.phone === ADAM_PHONE}>
-             <div className="relative">
-                 {/* Header Imagen */}
-                 <div className="w-full h-32 bg-stone-200 relative z-0">
-                    {visitingProfile.coverPhoto ? (
-                        <img src={visitingProfile.coverPhoto} alt="Cover" className="w-full h-full object-cover" />
-                    ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-200" />
-                    )}
-                 </div>
-                 
-                 {/* Contenido */}
-                 <div className={`relative flex flex-col items-center pt-16 px-6 pb-8 ${visitingProfile.phone === ADAM_PHONE ? 'text-stone-200' : 'text-stone-800'}`}>
-                    <div className="relative -mt-16 mb-4 z-10">
-                        <AvatarDisplay avatar={visitingProfile.avatar} size="large" isDev={visitingProfile.phone === ADAM_PHONE} />
-                    </div>
-                    <h3 className={`text-2xl font-extrabold text-center flex items-center gap-2 ${visitingProfile.phone === ADAM_PHONE ? 'text-emerald-400 font-mono' : 'text-stone-800'}`}>
-                      {visitingProfile.name}
-                      {visitingProfile.phone === ADAM_PHONE && <Code size={20} />}
-                    </h3>
-                    
-                    {/* ETIQUETA STAFF EN MODAL COMUNIDAD */}
-                    {visitingProfile.isWorker && (
-                      <div className="mt-1 mb-2">
-                        <span className="bg-indigo-100 text-indigo-700 text-xs px-3 py-0.5 rounded-full border border-indigo-200 font-bold flex items-center gap-1">
-                          <BadgeCheck size={14} /> Staff
-                        </span>
-                      </div>
-                    )}
+              <div className="relative">
+                  {/* Header Imagen */}
+                  <div className="w-full h-32 bg-stone-200 relative z-0">
+                     {visitingProfile.coverPhoto ? (
+                         <img src={visitingProfile.coverPhoto} alt="Cover" className="w-full h-full object-cover" />
+                     ) : (
+                         <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-200" />
+                     )}
+                  </div>
+                  
+                  {/* Contenido */}
+                  <div className={`relative flex flex-col items-center pt-16 px-6 pb-8 ${visitingProfile.phone === ADAM_PHONE ? 'text-stone-200' : 'text-stone-800'}`}>
+                     <div className="relative -mt-16 mb-4 z-10">
+                         <AvatarDisplay avatar={visitingProfile.avatar} size="large" isDev={visitingProfile.phone === ADAM_PHONE} />
+                     </div>
+                     <h3 className={`text-2xl font-extrabold text-center flex items-center gap-2 ${visitingProfile.phone === ADAM_PHONE ? 'text-emerald-400 font-mono' : 'text-stone-800'}`}>
+                       {visitingProfile.name}
+                       {visitingProfile.phone === ADAM_PHONE && <Code size={20} />}
+                     </h3>
+                     
+                     {/* ETIQUETA STAFF EN MODAL COMUNIDAD */}
+                     {visitingProfile.isWorker && (
+                       <div className="mt-1 mb-2">
+                         <span className="bg-indigo-100 text-indigo-700 text-xs px-3 py-0.5 rounded-full border border-indigo-200 font-bold flex items-center gap-1">
+                           <BadgeCheck size={14} /> Staff
+                         </span>
+                       </div>
+                     )}
 
-                    {!visitingProfile.phone === ADAM_PHONE && (() => {
-                        const badge = getSeniorityBadge(visitingProfile.joinedAt);
-                        const BadgeIcon = badge.icon;
-                        return <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${badge.color}`}><BadgeIcon size={14} /> {badge.label}</div>;
-                    })()}
-                    
-                    {visitingProfile.bio && <p className={`text-sm text-center mt-4 italic max-w-xs ${visitingProfile.phone === ADAM_PHONE ? 'text-stone-400' : 'text-stone-600'}`}>"{visitingProfile.bio}"</p>}
+                     {!visitingProfile.phone === ADAM_PHONE && (() => {
+                         const badge = getSeniorityBadge(visitingProfile.joinedAt);
+                         const BadgeIcon = badge.icon;
+                         return <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${badge.color}`}><BadgeIcon size={14} /> {badge.label}</div>;
+                     })()}
+                     
+                     {visitingProfile.bio && <p className={`text-sm text-center mt-4 italic max-w-xs ${visitingProfile.phone === ADAM_PHONE ? 'text-stone-400' : 'text-stone-600'}`}>"{visitingProfile.bio}"</p>}
 
-                    {/* GALERÍA PÚBLICA (SOLO APROBADAS) */}
-                    <div className="w-full mt-6">
-                        <p className="text-xs font-bold text-stone-400 uppercase mb-2 text-center">Fotos</p>
-                        <div className="grid grid-cols-3 gap-2">
-                            {(visitingProfile.gallery || []).filter(p => p.status === 'approved').map((img, i) => (
-                                <div key={i} className="aspect-square rounded-lg overflow-hidden bg-stone-100 cursor-pointer hover:opacity-90 transition-opacity">
-                                    <img src={img.url} className="w-full h-full object-cover" />
-                                </div>
-                            ))}
-                        </div>
-                        {(!visitingProfile.gallery || visitingProfile.gallery.filter(p => p.status === 'approved').length === 0) && (
-                            <p className="text-center text-stone-400 text-xs italic">Sin fotos públicas.</p>
-                        )}
-                    </div>
-                 </div>
-             </div>
+                     {/* GALERÍA PÚBLICA (SOLO APROBADAS) */}
+                     <div className="w-full mt-6">
+                         <p className="text-xs font-bold text-stone-400 uppercase mb-2 text-center">Fotos</p>
+                         <div className="grid grid-cols-3 gap-2">
+                             {(visitingProfile.gallery || []).filter(p => p.status === 'approved').map((img, i) => (
+                                 <div key={i} className="aspect-square rounded-lg overflow-hidden bg-stone-100 cursor-pointer hover:opacity-90 transition-opacity">
+                                     <img src={img.url} className="w-full h-full object-cover" />
+                                 </div>
+                             ))}
+                         </div>
+                         {(!visitingProfile.gallery || visitingProfile.gallery.filter(p => p.status === 'approved').length === 0) && (
+                             <p className="text-center text-stone-400 text-xs italic">Sin fotos públicas.</p>
+                         )}
+                     </div>
+                  </div>
+              </div>
           </PremiumCard>
         </div>
       )}
@@ -1839,72 +1904,72 @@ function AdminPanel({ shifts, goBack, db, volunteers, appId }) {
            </button>
 
           <PremiumCard isDev={viewingVolunteer.phone === ADAM_PHONE}>
-             <div className="relative">
-                 {/* Header Imagen */}
-                 <div className="w-full h-32 bg-stone-200 relative z-0">
-                    {viewingVolunteer.coverPhoto ? (
-                        <img src={viewingVolunteer.coverPhoto} alt="Cover" className="w-full h-full object-cover" />
-                    ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-200" />
-                    )}
-                 </div>
-                 
-                 {/* Contenido */}
-                 <div className={`relative flex flex-col items-center pt-16 px-6 pb-8 ${viewingVolunteer.phone === ADAM_PHONE ? 'text-stone-200' : 'text-stone-800'}`}>
-                    <div className="relative -mt-16 mb-4 z-10">
-                        <AvatarDisplay avatar={viewingVolunteer.avatar} size="large" isDev={viewingVolunteer.phone === ADAM_PHONE} />
-                    </div>
-                    <h3 className={`text-2xl font-extrabold text-center flex items-center gap-2 ${viewingVolunteer.phone === ADAM_PHONE ? 'text-white' : 'text-stone-800'}`}>
-                      {viewingVolunteer.name}
-                      {viewingVolunteer.phone === ADAM_PHONE && <div className="bg-black text-white text-[10px] px-1.5 rounded font-mono border border-green-500 text-green-400 flex items-center gap-1"><Code size={10} /> DEV</div>}
-                      {viewingVolunteer.isWorker && <BadgeCheck className="text-indigo-500 fill-indigo-100" size={24} />}
-                    </h3>
-                    
-                    <p className={`text-sm font-mono mb-3 ${viewingVolunteer.phone === ADAM_PHONE ? 'text-stone-500' : 'text-stone-500'}`}>{viewingVolunteer.phone}</p>
-                    
-                    {(() => {
-                        const badge = getSeniorityBadge(viewingVolunteer.joinedAt);
-                        const BadgeIcon = badge.icon;
-                        return (
-                            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${badge.color}`}>
-                                <BadgeIcon size={14} /> {badge.label}
-                            </div>
-                        );
-                    })()}
+              <div className="relative">
+                  {/* Header Imagen */}
+                  <div className="w-full h-32 bg-stone-200 relative z-0">
+                     {viewingVolunteer.coverPhoto ? (
+                         <img src={viewingVolunteer.coverPhoto} alt="Cover" className="w-full h-full object-cover" />
+                     ) : (
+                         <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-200" />
+                     )}
+                  </div>
+                  
+                  {/* Contenido */}
+                  <div className={`relative flex flex-col items-center pt-16 px-6 pb-8 ${viewingVolunteer.phone === ADAM_PHONE ? 'text-stone-200' : 'text-stone-800'}`}>
+                     <div className="relative -mt-16 mb-4 z-10">
+                         <AvatarDisplay avatar={viewingVolunteer.avatar} size="large" isDev={viewingVolunteer.phone === ADAM_PHONE} />
+                     </div>
+                     <h3 className={`text-2xl font-extrabold text-center flex items-center gap-2 ${viewingVolunteer.phone === ADAM_PHONE ? 'text-white' : 'text-stone-800'}`}>
+                       {viewingVolunteer.name}
+                       {viewingVolunteer.phone === ADAM_PHONE && <div className="bg-black text-white text-[10px] px-1.5 rounded font-mono border border-green-500 text-green-400 flex items-center gap-1"><Code size={10} /> DEV</div>}
+                       {viewingVolunteer.isWorker && <BadgeCheck className="text-indigo-500 fill-indigo-100" size={24} />}
+                     </h3>
+                     
+                     <p className={`text-sm font-mono mb-3 ${viewingVolunteer.phone === ADAM_PHONE ? 'text-stone-500' : 'text-stone-500'}`}>{viewingVolunteer.phone}</p>
+                     
+                     {(() => {
+                         const badge = getSeniorityBadge(viewingVolunteer.joinedAt);
+                         const BadgeIcon = badge.icon;
+                         return (
+                             <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${badge.color}`}>
+                                 <BadgeIcon size={14} /> {badge.label}
+                             </div>
+                         );
+                     })()}
 
-                    <div className="flex gap-2 flex-wrap justify-center mt-4">
-                        {(viewingVolunteer.zones || ['salon']).map(z => {
-                            const zInfo = Object.values(ZONES).find(zi => zi.label.toLowerCase() === z.toLowerCase()) || ZONES.salon;
-                            return <span key={z} className={`text-xs px-2 py-1 rounded-lg border font-bold ${zInfo.color}`}>{zInfo.label}</span>
-                        })}
-                    </div>
+                     <div className="flex gap-2 flex-wrap justify-center mt-4">
+                         {(viewingVolunteer.zones || ['salon']).map(z => {
+                             const zInfo = Object.values(ZONES).find(zi => zi.label.toLowerCase() === z.toLowerCase()) || ZONES.salon;
+                             return <span key={z} className={`text-xs px-2 py-1 rounded-lg border font-bold ${zInfo.color}`}>{zInfo.label}</span>
+                         })}
+                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mt-8 w-full">
-                        {(() => {
-                            const stats = calculateVolunteerStats(viewingVolunteer.phone);
-                            const isAdam = viewingVolunteer.phone === ADAM_PHONE;
-                            return (
-                                <>
-                                    <div className={`p-4 rounded-2xl text-center border ${isAdam ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-100'}`}>
-                                        <p className="text-xs text-stone-500 uppercase font-bold tracking-wide mb-1">Mes Actual</p>
-                                        <p className={`text-3xl font-black ${isAdam ? 'text-emerald-500' : 'text-orange-500'}`}>{isAdam ? '∞' : stats.month + 'h'}</p>
-                                    </div>
-                                    <div className={`p-4 rounded-2xl text-center border ${isAdam ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-100'}`}>
-                                        <p className="text-xs text-stone-500 uppercase font-bold tracking-wide mb-1">Total</p>
-                                        <p className={`text-3xl font-black ${isAdam ? 'text-stone-300' : 'text-stone-700'}`}>{isAdam ? '∞' : stats.total + 'h'}</p>
-                                    </div>
-                                </>
-                            );
-                        })()}
-                    </div>
+                     <div className="grid grid-cols-2 gap-4 mt-8 w-full">
+                         {(() => {
+                             const stats = calculateVolunteerStats(viewingVolunteer.phone);
+                             const isAdam = viewingVolunteer.phone === ADAM_PHONE;
+                             return (
+                                 <>
+                                     <div className={`p-4 rounded-2xl text-center border ${isAdam ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-100'}`}>
+                                         <p className="text-xs text-stone-500 uppercase font-bold tracking-wide mb-1">Mes Actual</p>
+                                         <p className={`text-3xl font-black ${isAdam ? 'text-emerald-500' : 'text-orange-500'}`}>{isAdam ? '∞' : stats.month + 'h'}</p>
+                                     </div>
+                                     <div className={`p-4 rounded-2xl text-center border ${isAdam ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-100'}`}>
+                                         <p className="text-xs text-stone-500 uppercase font-bold tracking-wide mb-1">Total</p>
+                                         <p className={`text-3xl font-black ${isAdam ? 'text-stone-300' : 'text-stone-700'}`}>{isAdam ? '∞' : stats.total + 'h'}</p>
+                                     </div>
+                                 </>
+                             );
+                         })()}
+                     </div>
 
-                    <div className={`mt-6 text-center w-full pt-4 border-t ${viewingVolunteer.phone === ADAM_PHONE ? 'border-stone-800' : 'border-stone-100'}`}>
-                        <p className="text-xs text-stone-400">
-                            Registrado el {viewingVolunteer.joinedAt ? new Date(viewingVolunteer.joinedAt).toLocaleDateString('es-ES') : 'N/A'}
-                        </p>
-                    </div>
-                 </div>
-             </div>
+                     <div className={`mt-6 text-center w-full pt-4 border-t ${viewingVolunteer.phone === ADAM_PHONE ? 'border-stone-800' : 'border-stone-100'}`}>
+                         <p className="text-xs text-stone-400">
+                             Registrado el {viewingVolunteer.joinedAt ? new Date(viewingVolunteer.joinedAt).toLocaleDateString('es-ES') : 'N/A'}
+                         </p>
+                     </div>
+                  </div>
+              </div>
           </PremiumCard>
         </div>
       )}
