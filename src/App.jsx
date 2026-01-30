@@ -12,8 +12,18 @@ import {
   Lock, CheckCircle, XCircle, ChevronLeft, ChevronRight,
   ShieldCheck, AlertCircle, Save, ArrowRight, Hourglass, Check, 
   MousePointerClick, CalendarDays, Trash2, Users, ClipboardList, 
-  Badge, Star, Info, Target, LayoutDashboard, UserCircle, Edit3, Camera, MapPin, Shield, BadgeCheck, Code, Zap, ZoomIn, ZoomOut, Move, Image as ImageIcon, Heart, Briefcase, KeyRound, Terminal, Cpu, Grid3X3, BookOpen, PlayCircle, ExternalLink
+  Badge, Star, Info, Target, LayoutDashboard, UserCircle, Edit3, Camera, MapPin, Shield, BadgeCheck, Code, Zap, ZoomIn, ZoomOut, Move, Image as ImageIcon, Heart, Briefcase, KeyRound, Terminal, Cpu, Grid3X3, BookOpen, PlayCircle, ExternalLink, Maximize2
 } from 'lucide-react';
+
+/*
+      |\      _,,,---,,_
+ZZZzz /,`.-'`'    -.  ;-;;,_
+     |,4-  ) )-,_. ,\ (  `'-'
+    '---''(_/--'  `-'\_)  
+    
+    Codigo por Adam jeje
+    HOLAAAAAAA
+*/
 
 // --- CONFIGURACIÓN FIREBASE (GATOTECA) ---
 const firebaseConfig = {
@@ -32,10 +42,17 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const appId = "gatoteca-app-v1"; 
 
-// --- SEGURIDAD ---
-const ENCRYPTED_PASS = "R2F0bzIwMjYh"; // Admin genérico
-const ADAM_PHONE = "603226558"; // El número del Desarrollador Supremo
-const ADAM_SECRET_HASH = "QlJBSUxMRUJPQ0NFTExJR0hPU1RCT01CT04="; // "BRAILLEBOCCELLIGHOSTBOMBON" en Base64
+
+const _k1 = "NjAz"; const _k2 = "MjI2"; const _k3 = "NTU4";
+const S_PHONE = atob(_k1 + _k2 + _k3); 
+
+
+const _p1 = "R2F0bzI="; const _p2 = "MDI2IQ==";
+const GENERIC_HASH = atob(_p1) + atob(_p2);
+
+
+const _s1 = "QlJBSUxMRUJPQ0NF"; const _s2 = "TExJR0hPU1RCT01CT04=";
+const ADAM_HASH = atob(_s1) + atob(_s2);
 
 const ZONES = {
   salon: { label: 'Salón', color: 'bg-blue-100 text-blue-700 border-blue-200' },
@@ -49,18 +66,16 @@ const PROTOCOL_VIDEOS = [
     title: 'Desinfección de Areneros', 
     description: 'Protocolo correcto para la limpieza y desinfección de las bandejas.',
     url: 'https://drive.google.com/file/d/1eLSzQJAFh64yucPXOuVxc613okEIOgOq/preview',
-    external: 'https://drive.google.com/file/d/1eLSzQJAFh64yucPXOuVxc613okEIOgOq/view?usp=sharing'
   },
   { 
     id: 'cuencos', 
     title: 'Desinfección de Cuencos', 
     description: 'Pasos para asegurar la higiene en los comederos y bebederos.',
     url: 'https://drive.google.com/file/d/174NsGo0dEjhh_I4azVyQoXK6cxEJ1py7/preview',
-    external: 'https://drive.google.com/file/d/174NsGo0dEjhh_I4azVyQoXK6cxEJ1py7/view?usp=sharing'
   }
 ];
 
-const AVATARS = ['🐱', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾'];
+const AVATARS = ['🐱', '😸', '😹', '😻', '😼', '😽', '😿', '😾'];
 
 const THEME = {
   card: "bg-white border border-stone-100 shadow-md rounded-2xl"
@@ -326,9 +341,6 @@ const ImageCropper = ({ imageSrc, onCrop, onCancel, type = 'avatar' }) => {
     const visualHeight = imageSize.height * currentScale;
 
     // 2. Calcular posición visual (centrado + crop offset)
-    // El origen visual (0,0) del viewport es la esquina superior izquierda del viewport
-    // La imagen se dibuja centrada por defecto si crop es 0,0
-    // Posición X visual = (ViewportW - VisualW) / 2 + crop.x
     const visualX = (VIEWPORT_SIZE - visualWidth) / 2 + crop.x;
     const visualY = (VIEWPORT_SIZE - visualHeight) / 2 + crop.y;
 
@@ -493,6 +505,8 @@ export default function App() {
   // LOGIN ADAM SUPREMO
   const [showAdamModal, setShowAdamModal] = useState(false);
   const [adamPassInput, setAdamPassInput] = useState('');
+  // Estado temporal para guardar los datos de login mientras se verifica la pass de Adam
+  const [pendingAdamLogin, setPendingAdamLogin] = useState(null);
 
   // Estados para Cropper y Fotos
   const [cropImageSrc, setCropImageSrc] = useState(null);
@@ -509,6 +523,18 @@ export default function App() {
   // Estado para editar perfil propio
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editProfileForm, setEditProfileForm] = useState({ name: '', phone: '' });
+
+  // Easter Egg
+  useEffect(() => {
+    console.log(`
+      |\\      _,,,---,,_
+ZZZzz /, \`.-'\`'    -.  ;-;;,_
+     |,4-  ) )-,_. ,\\ (  \`'-'
+    '---''(_/--'  \`-'\\_)  
+    
+    SYSTEM: CAT_OS LOADED
+    `);
+  }, []);
 
   // Carga de voluntarios GLOBAL (Para comunidad y admin)
   useEffect(() => {
@@ -559,7 +585,14 @@ export default function App() {
         const name = localStorage.getItem('gato_vol_name');
         const phone = localStorage.getItem('gato_vol_phone');
         if (name && phone) {
-          checkUserExists(name, phone);
+          // Si hay datos guardados, validamos si es el dev antes de cargar
+          if (phone === S_PHONE) {
+             // Si hay datos locales de Adam, no cargamos automáticamente, obligamos a login manual
+             // Para seguridad extra.
+             setView('login');
+          } else {
+             checkUserExists(name, phone);
+          }
         } else {
           setView('login');
         }
@@ -610,6 +643,18 @@ export default function App() {
     const name = fd.get('name');
     const phone = fd.get('phone');
     
+    // --- INTERCEPCIÓN DE SEGURIDAD ---
+    // Si el teléfono coincide con el del Dev, DETENER todo proceso normal.
+    // No permitir entrar a la app ni crear usuario.
+    if (phone === S_PHONE) {
+        // Guardamos los datos temporalmente
+        setPendingAdamLogin({ name, phone });
+        // Abrimos el modal de contraseña Maestra
+        setShowAdamModal(true);
+        // Salimos de la función
+        return;
+    }
+
     // FLUJO NORMAL
     if (name && phone && user) {
       processLogin(name, phone);
@@ -619,11 +664,20 @@ export default function App() {
   const handleAdamAuth = (e) => {
       e.preventDefault();
       try {
-          if (adamPassInput === atob(ADAM_SECRET_HASH)) {
+          if (adamPassInput === ADAM_HASH) {
+              // Contraseña Correcta
               setShowAdamModal(false);
               setAdamPassInput('');
-              setIsAdmin(true);
-              setView('admin');
+              
+              // Si veníamos de un intento de login (pantalla inicio)
+              if (pendingAdamLogin) {
+                  processLogin(pendingAdamLogin.name, pendingAdamLogin.phone);
+                  setPendingAdamLogin(null); // Limpiar
+              } else {
+                  // Si veníamos del botón de "Modo Dios" dentro de la app (ya logueados)
+                  setIsAdmin(true);
+                  setView('admin');
+              }
           } else {
               setAdminError('Contraseña incorrecta');
           }
@@ -805,7 +859,7 @@ export default function App() {
   const handleAdminLogin = (e) => {
     e.preventDefault();
     try {
-      if (adminPassInput === atob(ENCRYPTED_PASS)) {
+      if (adminPassInput === GENERIC_HASH) {
         setIsAdmin(true); setShowAdminModal(false); setView('admin'); setAdminError(''); setAdminPassInput('');
       } else setAdminError('Contraseña incorrecta');
     } catch { setAdminError('Error'); }
@@ -851,7 +905,7 @@ export default function App() {
 
   if (view === 'loading') return <div className="min-h-screen flex items-center justify-center bg-stone-50"><div className="animate-pulse text-orange-500"><Cat size={64} /></div></div>;
 
-  const isDevUser = userData?.phone === ADAM_PHONE;
+  const isDevUser = userData?.phone === S_PHONE;
 
   if (view === 'login') return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-stone-50">
@@ -899,6 +953,25 @@ export default function App() {
       )}
       
       {showAdminModal && <AdminModal onClose={() => setShowAdminModal(false)} onSubmit={handleAdminLogin} pass={adminPassInput} setPass={setAdminPassInput} error={adminError} />}
+
+      {/* MODAL ADAM LOGIN INTERCEPT (SOLO APARECE SI USAN EL NUMERO DEV) */}
+      {showAdamModal && pendingAdamLogin && (
+          <div className="fixed inset-0 bg-stone-900/90 backdrop-blur-md z-[60] flex items-center justify-center p-4">
+            <Card className="w-full max-w-sm p-8 relative animate-in zoom-in-95 border-emerald-500 border-2 bg-black shadow-2xl shadow-emerald-500/20">
+              <button onClick={() => { setShowAdamModal(false); setPendingAdamLogin(null); }} className="absolute top-4 right-4 text-stone-500 hover:text-white transition-colors"><XCircle size={24}/></button>
+              <div className="text-center mb-8">
+                <div className="bg-emerald-900/30 border border-emerald-500/30 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-emerald-400"><Code size={32} /></div>
+                <h3 className="text-2xl font-black text-white tracking-tight">Acceso Restringido</h3>
+                <p className="text-xs text-emerald-500/70 mt-2 font-mono uppercase tracking-widest">Identificación Requerida</p>
+              </div>
+              <form onSubmit={handleAdamAuth} className="space-y-4">
+                <input type="password" autoFocus value={adamPassInput} onChange={e=>setAdamPassInput(e.target.value)} className="w-full p-4 bg-stone-900 rounded-2xl border-2 border-stone-800 focus:border-emerald-500 focus:bg-black outline-none transition-all font-bold text-center tracking-widest text-lg text-emerald-400 placeholder-stone-700" placeholder="ACCESS KEY" />
+                {adminError && <p className="text-rose-500 text-sm bg-rose-900/20 border border-rose-500/30 p-3 rounded-xl font-medium text-center">{adminError}</p>}
+                <Button type="submit" variant="adam" className="w-full py-4 text-lg">Verificar Identidad</Button>
+              </form>
+            </Card>
+          </div>
+      )}
     </div>
   );
 
@@ -985,7 +1058,7 @@ export default function App() {
               {/* VISTA PROTOCOLOS */}
               {navTab === 'protocols' && (
                   <div className="flex flex-col items-center w-full animate-in slide-in-from-right-8">
-                     <div className="w-full max-w-2xl mb-6 flex items-center justify-between">
+                      <div className="w-full max-w-2xl mb-6 flex items-center justify-between">
                         <div>
                             <h2 className={`text-2xl font-bold ${isDevUser ? 'text-white' : 'text-stone-800'}`}>Protocolos</h2>
                             <p className="text-stone-500 text-sm">Formación y limpieza</p>
@@ -1009,19 +1082,13 @@ export default function App() {
                                     <iframe 
                                         src={video.url}
                                         className="w-full h-full absolute inset-0"
-                                        allow="autoplay"
+                                        allow="autoplay; fullscreen"
+                                        allowFullScreen
                                         title={video.title}
                                     ></iframe>
                                 </div>
-                                <div className={`p-3 text-center border-t ${isDevUser ? 'border-stone-800 bg-stone-900' : 'border-stone-100 bg-stone-50'}`}>
-                                    <a 
-                                        href={video.external} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className={`inline-flex items-center gap-2 text-xs font-bold hover:underline ${isDevUser ? 'text-emerald-500' : 'text-orange-500'}`}
-                                    >
-                                        <ExternalLink size={12} /> Ver en Google Drive (Pantalla completa)
-                                    </a>
+                                <div className={`p-2 text-center border-t text-[10px] text-stone-400 italic ${isDevUser ? 'border-stone-800 bg-stone-900' : 'border-stone-100 bg-stone-50'}`}>
+                                     💡 Dale al botón de pantalla completa en el reproductor para ver mejor.
                                 </div>
                             </Card>
                         ))}
@@ -1038,7 +1105,7 @@ export default function App() {
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 w-full max-w-4xl">
                         {communityVolunteers.map(vol => {
-                            const isAdam = vol.phone === ADAM_PHONE;
+                            const isAdam = vol.phone === S_PHONE;
                             const badge = getSeniorityBadge(vol.joinedAt);
                             
                             const CardContent = () => (
@@ -1234,58 +1301,58 @@ export default function App() {
               <XCircle size={32} />
           </button>
 
-          <PremiumCard isDev={visitingProfile.phone === ADAM_PHONE}>
+          <PremiumCard isDev={visitingProfile.phone === S_PHONE}>
               <div className="relative">
                   {/* Header Imagen */}
                   <div className="w-full h-32 bg-stone-200 relative z-0">
-                     {visitingProfile.coverPhoto ? (
-                         <img src={visitingProfile.coverPhoto} alt="Cover" className="w-full h-full object-cover" />
-                     ) : (
-                         <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-200" />
-                     )}
+                      {visitingProfile.coverPhoto ? (
+                          <img src={visitingProfile.coverPhoto} alt="Cover" className="w-full h-full object-cover" />
+                      ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-200" />
+                      )}
                   </div>
                   
                   {/* Contenido */}
-                  <div className={`relative flex flex-col items-center pt-16 px-6 pb-8 ${visitingProfile.phone === ADAM_PHONE ? 'text-stone-200' : 'text-stone-800'}`}>
-                     <div className="relative -mt-16 mb-4 z-10">
-                         <AvatarDisplay avatar={visitingProfile.avatar} size="large" isDev={visitingProfile.phone === ADAM_PHONE} />
-                     </div>
-                     <h3 className={`text-2xl font-extrabold text-center flex items-center gap-2 ${visitingProfile.phone === ADAM_PHONE ? 'text-emerald-400 font-mono' : 'text-stone-800'}`}>
-                       {visitingProfile.name}
-                       {visitingProfile.phone === ADAM_PHONE && <Code size={20} />}
-                     </h3>
-                     
-                     {/* ETIQUETA STAFF EN MODAL COMUNIDAD */}
-                     {visitingProfile.isWorker && (
-                       <div className="mt-1 mb-2">
-                         <span className="bg-indigo-100 text-indigo-700 text-xs px-3 py-0.5 rounded-full border border-indigo-200 font-bold flex items-center gap-1">
-                           <BadgeCheck size={14} /> Staff
-                         </span>
-                       </div>
-                     )}
+                  <div className={`relative flex flex-col items-center pt-16 px-6 pb-8 ${visitingProfile.phone === S_PHONE ? 'text-stone-200' : 'text-stone-800'}`}>
+                      <div className="relative -mt-16 mb-4 z-10">
+                          <AvatarDisplay avatar={visitingProfile.avatar} size="large" isDev={visitingProfile.phone === S_PHONE} />
+                      </div>
+                      <h3 className={`text-2xl font-extrabold text-center flex items-center gap-2 ${visitingProfile.phone === S_PHONE ? 'text-emerald-400 font-mono' : 'text-stone-800'}`}>
+                        {visitingProfile.name}
+                        {visitingProfile.phone === S_PHONE && <Code size={20} />}
+                      </h3>
+                      
+                      {/* ETIQUETA STAFF EN MODAL COMUNIDAD */}
+                      {visitingProfile.isWorker && (
+                        <div className="mt-1 mb-2">
+                          <span className="bg-indigo-100 text-indigo-700 text-xs px-3 py-0.5 rounded-full border border-indigo-200 font-bold flex items-center gap-1">
+                            <BadgeCheck size={14} /> Staff
+                          </span>
+                        </div>
+                      )}
 
-                     {!visitingProfile.phone === ADAM_PHONE && (() => {
-                         const badge = getSeniorityBadge(visitingProfile.joinedAt);
-                         const BadgeIcon = badge.icon;
-                         return <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${badge.color}`}><BadgeIcon size={14} /> {badge.label}</div>;
-                     })()}
-                     
-                     {visitingProfile.bio && <p className={`text-sm text-center mt-4 italic max-w-xs ${visitingProfile.phone === ADAM_PHONE ? 'text-stone-400' : 'text-stone-600'}`}>"{visitingProfile.bio}"</p>}
+                      {visitingProfile.phone !== S_PHONE && (() => {
+                          const badge = getSeniorityBadge(visitingProfile.joinedAt);
+                          const BadgeIcon = badge.icon;
+                          return <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${badge.color}`}><BadgeIcon size={14} /> {badge.label}</div>;
+                      })()}
+                      
+                      {visitingProfile.bio && <p className={`text-sm text-center mt-4 italic max-w-xs ${visitingProfile.phone === S_PHONE ? 'text-stone-400' : 'text-stone-600'}`}>"{visitingProfile.bio}"</p>}
 
-                     {/* GALERÍA PÚBLICA (SOLO APROBADAS) */}
-                     <div className="w-full mt-6">
-                         <p className="text-xs font-bold text-stone-400 uppercase mb-2 text-center">Fotos</p>
-                         <div className="grid grid-cols-3 gap-2">
+                      {/* GALERÍA PÚBLICA (SOLO APROBADAS) */}
+                      <div className="w-full mt-6">
+                          <p className="text-xs font-bold text-stone-400 uppercase mb-2 text-center">Fotos</p>
+                          <div className="grid grid-cols-3 gap-2">
                              {(visitingProfile.gallery || []).filter(p => p.status === 'approved').map((img, i) => (
                                  <div key={i} className="aspect-square rounded-lg overflow-hidden bg-stone-100 cursor-pointer hover:opacity-90 transition-opacity">
                                      <img src={img.url} className="w-full h-full object-cover" />
                                  </div>
                              ))}
-                         </div>
-                         {(!visitingProfile.gallery || visitingProfile.gallery.filter(p => p.status === 'approved').length === 0) && (
+                          </div>
+                          {(!visitingProfile.gallery || visitingProfile.gallery.filter(p => p.status === 'approved').length === 0) && (
                              <p className="text-center text-stone-400 text-xs italic">Sin fotos públicas.</p>
-                         )}
-                     </div>
+                          )}
+                      </div>
                   </div>
               </div>
           </PremiumCard>
@@ -1360,7 +1427,6 @@ export default function App() {
                       const pending = pendingChanges[hour];
                       // Lógica estricta de "Pasado": Si es hoy y la hora es menor o igual, ya pasó.
                       const isPastHour = isToday && hour <= currentHour;
-                      // Lógica de "Futuro": Fecha seleccionada > Hoy O Fecha == Hoy pero hora > actual
                       const isFuture = selectedDate > now || (isToday && hour > currentHour);
                       
                       let variant = 'default'; let label = `${count}/${maxCapacity} Libres`; let icon = null;
@@ -1390,9 +1456,9 @@ export default function App() {
                       } else if (pending === 'add') { 
                         variant = 'selected'; label = 'Solicitar'; icon = CheckCircle; 
                       } else {
-                         // Estado por defecto (disponible y no lleno)
-                         label = `${count}/${maxCapacity} Ocupado`;
-                         if (count === 0) label = "Disponible";
+                          // Estado por defecto (disponible y no lleno)
+                          label = `${count}/${maxCapacity} Ocupado`;
+                          if (count === 0) label = "Disponible";
                       }
 
                       const styles = {
@@ -1454,22 +1520,27 @@ export default function App() {
            </div>
         </div>
       )}
-      
-      {showAdamModal && (
-          <div className="fixed inset-0 bg-stone-900/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-            <Card className="w-full max-w-sm p-8 relative animate-in zoom-in-95 border-emerald-400 border-2">
-              <button onClick={() => setShowAdamModal(false)} className="absolute top-4 right-4 text-stone-500 hover:text-white transition-colors"><XCircle size={24}/></button>
-              <div className="text-center mb-8"><div className="bg-emerald-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-emerald-600"><Code size={32} /></div><h3 className="text-2xl font-black text-stone-800">Hola Adam</h3><p className="text-sm text-stone-500 mt-1">Identifícate</p></div>
-              <form onSubmit={handleAdamAuth} className="space-y-4">
-                <input type="password" autoFocus value={adamPassInput} onChange={e=>setAdamPassInput(e.target.value)} className="w-full p-4 bg-stone-50 rounded-2xl border-2 border-transparent focus:border-emerald-400 focus:bg-white outline-none transition-all font-bold text-center tracking-widest text-lg" placeholder="Contraseña Maestra..." />
-                {adminError && <p className="text-rose-500 text-sm bg-rose-50 p-3 rounded-xl font-medium text-center">{adminError}</p>}
-                <Button type="submit" variant="success" className="w-full py-4 text-lg">Acceder</Button>
-              </form>
-            </Card>
-          </div>
-      )}
 
-      {showAdminModal && <AdminModal onClose={() => setShowAdminModal(false)} onSubmit={handleAdminLogin} pass={adminPassInput} setPass={setAdminPassInput} error={adminError} />}
+      {showAdamModal && pendingAdamLogin && (
+        <div className="fixed inset-0 bg-stone-900/90 backdrop-blur-md z-[60] flex items-center justify-center p-4">
+           {/* Este bloque es redundante con el de arriba, pero asegura que se renderice si se llama desde aquí */}
+           <Card className="w-full max-w-sm p-8 relative animate-in zoom-in-95 border-emerald-500 border-2 bg-black shadow-2xl shadow-emerald-500/20">
+              <button onClick={() => { setShowAdamModal(false); setPendingAdamLogin(null); }} className="absolute top-4 right-4 text-stone-500 hover:text-white transition-colors"><XCircle size={24}/></button>
+              <div className="text-center mb-8">
+                <div className="bg-emerald-900/30 border border-emerald-500/30 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-emerald-400"><Code size={32} /></div>
+                <h3 className="text-2xl font-black text-white tracking-tight">Acceso Restringido</h3>
+                <p className="text-xs text-emerald-500/70 mt-2 font-mono uppercase tracking-widest">Identificación Requerida</p>
+              </div>
+              <form onSubmit={handleAdamAuth} className="space-y-4">
+                <input type="password" autoFocus value={adamPassInput} onChange={e=>setAdamPassInput(e.target.value)} className="w-full p-4 bg-stone-900 rounded-2xl border-2 border-stone-800 focus:border-emerald-500 focus:bg-black outline-none transition-all font-bold text-center tracking-widest text-lg text-emerald-400 placeholder-stone-700" placeholder="ACCESS KEY" />
+                {adminError && <p className="text-rose-500 text-sm bg-rose-900/20 border border-rose-500/30 p-3 rounded-xl font-medium text-center">{adminError}</p>}
+                <Button type="submit" variant="adam" className="w-full py-4 text-lg">Verificar Identidad</Button>
+              </form>
+           </Card>
+        </div>
+      )}
+      
+      {showAdminModal && !pendingAdamLogin && <AdminModal onClose={() => setShowAdminModal(false)} onSubmit={handleAdminLogin} pass={adminPassInput} setPass={setAdminPassInput} error={adminError} />}
     </div>
   );
 }
@@ -1554,7 +1625,7 @@ function AdminPanel({ shifts, goBack, db, volunteers, appId }) {
 
   const handleDeleteVolunteer = async () => {
     if (!deleteTarget) return;
-    if (deleteTarget.phone === ADAM_PHONE) {
+    if (deleteTarget.phone === S_PHONE) {
         alert("⚠️ ACCESO DENEGADO: No puedes borrar al Desarrollador Supremo.");
         setDeleteTarget(null);
         return;
@@ -1765,7 +1836,7 @@ function AdminPanel({ shifts, goBack, db, volunteers, appId }) {
                     <tbody className="divide-y divide-stone-100">
                     {stats.map(v => {
                         const volInfo = volunteers.find(vol => vol.phone === v.phone);
-                        const isAdam = v.phone === ADAM_PHONE;
+                        const isAdam = v.phone === S_PHONE;
                         return (
                         <tr key={v.phone} className="hover:bg-orange-50 transition-colors">
                             <td className="p-4 pl-6">
@@ -1788,7 +1859,7 @@ function AdminPanel({ shifts, goBack, db, volunteers, appId }) {
                             <td className="hidden sm:table-cell p-4"><ProgressRing radius={18} stroke={3} progress={v.month} total={12} isDev={isAdam} /></td>
                             <td className="hidden sm:table-cell p-4 text-center"><span className="font-bold text-stone-600 bg-stone-100 px-2 py-1 rounded-md">{isAdam ? '∞' : v.total + ' h'}</span></td>
                             <td className="p-4 text-right pr-6">
-                                {v.phone !== ADAM_PHONE && (
+                                {v.phone !== S_PHONE && (
                                     <button onClick={() => setDeleteTarget(v)} className="text-stone-400 hover:text-rose-600 hover:bg-rose-50 p-2 rounded-lg transition-all"><Trash2 size={18} /></button>
                                 )}
                             </td>
@@ -1850,7 +1921,7 @@ function AdminPanel({ shifts, goBack, db, volunteers, appId }) {
             <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {volunteers.map(v => {
                    const badge = getSeniorityBadge(v.joinedAt);
-                   const isAdam = v.phone === ADAM_PHONE;
+                   const isAdam = v.phone === S_PHONE;
                    return (
                    <button 
                       key={v.phone} 
@@ -1858,7 +1929,7 @@ function AdminPanel({ shifts, goBack, db, volunteers, appId }) {
                       className={`p-4 rounded-2xl border shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center relative ${isAdam ? 'bg-stone-900 border-emerald-900' : 'bg-white border-stone-100'}`}
                    >
                       {/* BOTONES DE ACCIÓN FLOTANTES */}
-                      {v.phone !== ADAM_PHONE && (
+                      {v.phone !== S_PHONE && (
                         <div className="absolute top-2 right-2 flex gap-1">
                             <div onClick={(e) => { e.stopPropagation(); setEditingVolunteer(v); setOriginalPhone(v.phone); }} className="bg-stone-50 p-1.5 rounded-full hover:bg-orange-50 text-stone-400 hover:text-orange-500 transition-colors"><Edit3 size={14} /></div>
                             <div onClick={(e) => { e.stopPropagation(); setDeleteTarget(v); }} className="bg-stone-50 p-1.5 rounded-full hover:bg-rose-50 text-stone-400 hover:text-rose-500 transition-colors"><Trash2 size={14} /></div>
@@ -1871,7 +1942,7 @@ function AdminPanel({ shifts, goBack, db, volunteers, appId }) {
                       <div className={`font-bold text-sm truncate w-full flex items-center justify-center gap-1 ${isAdam ? 'text-emerald-400 font-mono' : 'text-stone-800'}`}>
                           {v.name}
                           {v.isWorker && <BadgeCheck size={14} className="text-indigo-600 fill-indigo-100" />}
-                          {v.phone === ADAM_PHONE && <Code size={14} />}
+                          {v.phone === S_PHONE && <Code size={14} />}
                       </div>
                       <div className={`mt-1 text-[9px] px-2 py-0.5 rounded-full border ${badge.color}`}>
                           {badge.label}
@@ -1903,71 +1974,71 @@ function AdminPanel({ shifts, goBack, db, volunteers, appId }) {
               <XCircle size={32} />
            </button>
 
-          <PremiumCard isDev={viewingVolunteer.phone === ADAM_PHONE}>
+          <PremiumCard isDev={viewingVolunteer.phone === S_PHONE}>
               <div className="relative">
                   {/* Header Imagen */}
                   <div className="w-full h-32 bg-stone-200 relative z-0">
-                     {viewingVolunteer.coverPhoto ? (
-                         <img src={viewingVolunteer.coverPhoto} alt="Cover" className="w-full h-full object-cover" />
-                     ) : (
-                         <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-200" />
-                     )}
+                      {viewingVolunteer.coverPhoto ? (
+                          <img src={viewingVolunteer.coverPhoto} alt="Cover" className="w-full h-full object-cover" />
+                      ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-200" />
+                      )}
                   </div>
                   
                   {/* Contenido */}
-                  <div className={`relative flex flex-col items-center pt-16 px-6 pb-8 ${viewingVolunteer.phone === ADAM_PHONE ? 'text-stone-200' : 'text-stone-800'}`}>
-                     <div className="relative -mt-16 mb-4 z-10">
-                         <AvatarDisplay avatar={viewingVolunteer.avatar} size="large" isDev={viewingVolunteer.phone === ADAM_PHONE} />
-                     </div>
-                     <h3 className={`text-2xl font-extrabold text-center flex items-center gap-2 ${viewingVolunteer.phone === ADAM_PHONE ? 'text-white' : 'text-stone-800'}`}>
-                       {viewingVolunteer.name}
-                       {viewingVolunteer.phone === ADAM_PHONE && <div className="bg-black text-white text-[10px] px-1.5 rounded font-mono border border-green-500 text-green-400 flex items-center gap-1"><Code size={10} /> DEV</div>}
-                       {viewingVolunteer.isWorker && <BadgeCheck className="text-indigo-500 fill-indigo-100" size={24} />}
-                     </h3>
-                     
-                     <p className={`text-sm font-mono mb-3 ${viewingVolunteer.phone === ADAM_PHONE ? 'text-stone-500' : 'text-stone-500'}`}>{viewingVolunteer.phone}</p>
-                     
-                     {(() => {
-                         const badge = getSeniorityBadge(viewingVolunteer.joinedAt);
-                         const BadgeIcon = badge.icon;
-                         return (
-                             <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${badge.color}`}>
-                                 <BadgeIcon size={14} /> {badge.label}
-                             </div>
-                         );
-                     })()}
+                  <div className={`relative flex flex-col items-center pt-16 px-6 pb-8 ${viewingVolunteer.phone === S_PHONE ? 'text-stone-200' : 'text-stone-800'}`}>
+                      <div className="relative -mt-16 mb-4 z-10">
+                          <AvatarDisplay avatar={viewingVolunteer.avatar} size="large" isDev={viewingVolunteer.phone === S_PHONE} />
+                      </div>
+                      <h3 className={`text-2xl font-extrabold text-center flex items-center gap-2 ${viewingVolunteer.phone === S_PHONE ? 'text-white' : 'text-stone-800'}`}>
+                        {viewingVolunteer.name}
+                        {viewingVolunteer.phone === S_PHONE && <div className="bg-black text-white text-[10px] px-1.5 rounded font-mono border border-green-500 text-green-400 flex items-center gap-1"><Code size={10} /> DEV</div>}
+                        {viewingVolunteer.isWorker && <BadgeCheck className="text-indigo-500 fill-indigo-100" size={24} />}
+                      </h3>
+                      
+                      <p className={`text-sm font-mono mb-3 ${viewingVolunteer.phone === S_PHONE ? 'text-stone-500' : 'text-stone-500'}`}>{viewingVolunteer.phone}</p>
+                      
+                      {(() => {
+                          const badge = getSeniorityBadge(viewingVolunteer.joinedAt);
+                          const BadgeIcon = badge.icon;
+                          return (
+                              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${badge.color}`}>
+                                  <BadgeIcon size={14} /> {badge.label}
+                              </div>
+                          );
+                      })()}
 
-                     <div className="flex gap-2 flex-wrap justify-center mt-4">
-                         {(viewingVolunteer.zones || ['salon']).map(z => {
-                             const zInfo = Object.values(ZONES).find(zi => zi.label.toLowerCase() === z.toLowerCase()) || ZONES.salon;
-                             return <span key={z} className={`text-xs px-2 py-1 rounded-lg border font-bold ${zInfo.color}`}>{zInfo.label}</span>
-                         })}
-                     </div>
+                      <div className="flex gap-2 flex-wrap justify-center mt-4">
+                          {(viewingVolunteer.zones || ['salon']).map(z => {
+                              const zInfo = Object.values(ZONES).find(zi => zi.label.toLowerCase() === z.toLowerCase()) || ZONES.salon;
+                              return <span key={z} className={`text-xs px-2 py-1 rounded-lg border font-bold ${zInfo.color}`}>{zInfo.label}</span>
+                          })}
+                      </div>
 
-                     <div className="grid grid-cols-2 gap-4 mt-8 w-full">
-                         {(() => {
-                             const stats = calculateVolunteerStats(viewingVolunteer.phone);
-                             const isAdam = viewingVolunteer.phone === ADAM_PHONE;
-                             return (
-                                 <>
-                                     <div className={`p-4 rounded-2xl text-center border ${isAdam ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-100'}`}>
-                                         <p className="text-xs text-stone-500 uppercase font-bold tracking-wide mb-1">Mes Actual</p>
-                                         <p className={`text-3xl font-black ${isAdam ? 'text-emerald-500' : 'text-orange-500'}`}>{isAdam ? '∞' : stats.month + 'h'}</p>
-                                     </div>
-                                     <div className={`p-4 rounded-2xl text-center border ${isAdam ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-100'}`}>
-                                         <p className="text-xs text-stone-500 uppercase font-bold tracking-wide mb-1">Total</p>
-                                         <p className={`text-3xl font-black ${isAdam ? 'text-stone-300' : 'text-stone-700'}`}>{isAdam ? '∞' : stats.total + 'h'}</p>
-                                     </div>
-                                 </>
-                             );
-                         })()}
-                     </div>
+                      <div className="grid grid-cols-2 gap-4 mt-8 w-full">
+                          {(() => {
+                              const stats = calculateVolunteerStats(viewingVolunteer.phone);
+                              const isAdam = viewingVolunteer.phone === S_PHONE;
+                              return (
+                                  <>
+                                      <div className={`p-4 rounded-2xl text-center border ${isAdam ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-100'}`}>
+                                          <p className="text-xs text-stone-500 uppercase font-bold tracking-wide mb-1">Mes Actual</p>
+                                          <p className={`text-3xl font-black ${isAdam ? 'text-emerald-500' : 'text-orange-500'}`}>{isAdam ? '∞' : stats.month + 'h'}</p>
+                                      </div>
+                                      <div className={`p-4 rounded-2xl text-center border ${isAdam ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-100'}`}>
+                                          <p className="text-xs text-stone-500 uppercase font-bold tracking-wide mb-1">Total</p>
+                                          <p className={`text-3xl font-black ${isAdam ? 'text-stone-300' : 'text-stone-700'}`}>{isAdam ? '∞' : stats.total + 'h'}</p>
+                                      </div>
+                                  </>
+                              );
+                          })()}
+                      </div>
 
-                     <div className={`mt-6 text-center w-full pt-4 border-t ${viewingVolunteer.phone === ADAM_PHONE ? 'border-stone-800' : 'border-stone-100'}`}>
-                         <p className="text-xs text-stone-400">
-                             Registrado el {viewingVolunteer.joinedAt ? new Date(viewingVolunteer.joinedAt).toLocaleDateString('es-ES') : 'N/A'}
-                         </p>
-                     </div>
+                      <div className={`mt-6 text-center w-full pt-4 border-t ${viewingVolunteer.phone === S_PHONE ? 'border-stone-800' : 'border-stone-100'}`}>
+                          <p className="text-xs text-stone-400">
+                              Registrado el {viewingVolunteer.joinedAt ? new Date(viewingVolunteer.joinedAt).toLocaleDateString('es-ES') : 'N/A'}
+                          </p>
+                      </div>
                   </div>
               </div>
           </PremiumCard>
